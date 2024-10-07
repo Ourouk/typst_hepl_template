@@ -156,15 +156,12 @@
   }
 
 
-
-
-
 // TODO: Size ajustement if more authors
-place(top + center, dy: -2.4cm,
+place(top + center, dy: -2.4cm ,
   rect(
     fill: HEPLColors.beige-super-pale,
     width: 140%,
-    height: 6cm ,
+    height: 5.5cm + 0.3cm * calc.min(3, authors.len())
   )
 )
 
@@ -190,7 +187,7 @@ box(width: 100%,columns(2, gutter: 11pt)[
               // Determine the academic year.
               #v(0.25cm, weak: true)
               #let this_year = date.year()
-              #if date.month() < 9 [Année Académique #{this_year - 1} -- #this_year] else [Année Académique #this_year -- {this_year+ 1}]
+              #if date.month() < 9 [Année Académique #{this_year - 1} -- #this_year] else [Année Académique #this_year -- #(this_year+ 1)]
               \
                 // Report course
                 #text(size: 1.4em, fill: HEPLColors.bleu-fonce-hepl, weight: "semibold")[
@@ -213,7 +210,7 @@ box(width: 100%,columns(2, gutter: 11pt)[
               #author.first-name #smallcaps(author.last-name)  \
               #author.cursus
             ]
-          ),
+          ) + v(0.5cm),
         )
       )
   ]
