@@ -245,9 +245,9 @@ box(width: 100%,columns(2, gutter: 11pt)[
   pagebreak()
   // Document main body.
   body
-  pagebreak()
   // Print the bibliography.
   if bibliography-file != none {
+    pagebreak()
     show bibliography: set text(0.9em)
     bibliography(bibliography-file, full: false, style: "ieee",title: "Bibliographie")
   }
