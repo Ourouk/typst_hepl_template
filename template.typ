@@ -155,15 +155,20 @@
     }
   }
 
-
-// TODO: Size ajustement if more authors
-place(top + center, dy: -2.4cm ,
+{
+  let size = 2.2em
+  let number_of_authors = 0
+  if authors.len() > 3 {
+    number_of_authors = authors.len() -3
+  }
+  place(top + center, dy: -2.35cm ,
   rect(
     fill: HEPLColors.beige-super-pale,
     width: 140%,
-    height: 5.5cm + 0.3cm * calc.min(3, authors.len())
+    height: 6.5cm + number_of_authors * size,
   )
 )
+}
 
 // Teal top right triangle.
 place(top + right, dx: 6cm, dy: -5.5cm,
@@ -201,16 +206,17 @@ box(width: 100%,columns(2, gutter: 11pt)[
       #colbreak()
 
       #set par(justify: false)
+      #set par(justify: true, leading: 0.15em)
       #grid(
-        rows: (0.25cm) * calc.min(3, authors.len()),
-        gutter: 1em,
         ..authors.map(author => align(
             center,
             [
               #author.first-name #smallcaps(author.last-name)  \
               #author.cursus
+              \
+              \
             ]
-          ) + v(0.5cm),
+          ),
         )
       )
   ]
@@ -241,6 +247,7 @@ box(width: 100%,columns(2, gutter: 11pt)[
       rest
     }
   }
+  v(1cm)
   outline(indent: auto,title: "Table des matières")
   pagebreak()
   // Document main body.
