@@ -161,7 +161,7 @@
   if authors.len() > 3 {
     number_of_authors = authors.len() -3
   }
-  place(top + center, dy: -2.35cm ,
+  place(top + center, dy: -2.36cm ,
   rect(
     fill: HEPLColors.beige-super-pale,
     width: 140%,
