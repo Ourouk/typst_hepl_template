@@ -59,7 +59,6 @@
   bibliography-file: none,
   body,
 ) = {
-  
   // Document's basic properties.
   set document(author: authors.map(author => author.first-name + author.last-name), title: title)
 
@@ -75,6 +74,42 @@
         (x: 3cm, top: 2cm+headsize, bottom: 2cm)
       },
     header-ascent: 35%,
+    header: context {
+      set text(font: sans-font, size: headsize, fill: Uliege.GrayDark)
+
+      let selector = selector(heading).before(here())
+      let level = counter(selector)
+      let headings = query(selector)
+
+      if headings.len() == 0 {
+        return
+      }
+
+      let headings_shown = (1, 2)
+      let heading_max_level = calc.max(..headings_shown)
+
+      level.display((..nums) => nums
+        .pos()
+        .slice(0, calc.min(heading_max_level, nums.pos().len()))
+        .map(str)
+        .join("."))
+
+      let heading_text = headings_shown.map((i) => {
+        let headings_at_this_level = headings
+          .filter(h => h.level == i)
+
+        if headings_at_this_level.len() == 0 { return none }
+
+        headings_at_this_level
+          .last()
+          .body
+      })
+      .filter(it => it != none)
+      .join([ --- ])
+
+      h(1em)
+      heading_text
+    }
   )
 
   // Font families.
@@ -93,41 +128,6 @@
   show math.equation: set text(font: "STIX Two Math")
   set math.equation(numbering: "(1.1)")
 
-  // Header.
-  set page(
-  header: locate(loc => {
-    set text(font: sans-font, size: headsize, fill: Uliege.GrayDark)
-
-    // Right header: page numbering
-    let thisPage = counter(page).display()
-    let totalPages = [#counter(page).final(loc).at(0)]
-    let pageNumbering = thisPage + " \u{2022} " + totalPages
-
-    // Left header: section number and title
-    let elems = query(
-      selector(heading.where(level: 1)).before(loc),
-      loc,
-    )
-    let sectionNum = none
-    let sectionTitle = none
-    let sectionHeader = none
-    if elems != () {
-      sectionTitle = elems.last().body
-      if elems.last().numbering == none {
-        sectionHeader = sectionTitle
-      } else {
-        sectionNum = counter(heading.where(level: 1)).display()
-        sectionHeader = sectionNum + " \u{2022} " + sectionTitle
-      }
-    }
-
-    // Build the complete header.
-    sectionHeader + h(1fr) + pageNumbering
-  }),
-  )
-
-
-
   // Paragraphs.
   set par(
     leading: 0.8em,
@@ -135,7 +135,6 @@
     justify: true,
     linebreaks: "optimized",
   )
-  show par: set block(spacing: 0.8em)
 
   // Headings.
   set heading(numbering: "1.1")
