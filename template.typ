@@ -59,6 +59,12 @@
   bibliography-file: none,
   body,
 ) = {
+  //Add Suport for beautifull code block
+  import "@preview/codly:1.3.0": *
+  import "@preview/codly-languages:0.1.1": *
+  show: codly-init.with()
+  //Add support for more languages
+  codly(languages: codly-languages)
   // Document's basic properties.
   set document(author: authors.map(author => author.first-name + author.last-name), title: title)
 
@@ -174,7 +180,7 @@ place(top + right, dx: 6cm, dy: -5.5cm,
   rotate(30deg,
     polygon.regular(
       fill:HEPLColors.rouge-prv,
-      size: 9cm,
+      size: 7.75cm,
       vertices: 5,
     )
   )
@@ -184,12 +190,12 @@ place(top + right, dx: 6cm, dy: -5.5cm,
 place(top + left, dy: -1cm)[
     #image("figures/g2.svg", height: 1.25cm)
   ]
-v(1.5cm)
+v(1.25cm)
 // Title and course. + academic year
 box(width: 100%,columns(2, gutter: 11pt)[
               #align(left)[
               // Determine the academic year.
-              #v(0.25cm, weak: true)
+              #v(0.15cm, weak: true)
               #let this_year = date.year()
               #if date.month() < 9 [Année Académique #{this_year - 1} -- #this_year] else [Année Académique #this_year -- #(this_year+ 1)]
               \
