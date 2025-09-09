@@ -156,9 +156,61 @@
   }
 //Title Page
 if fullTitlePage {
-
+  
 } else {
-  include "minimalTitlePage.typ"
+    let size = 2.2em
+    let number_of_authors = 0
+    if authors.len() > 3 {
+      number_of_authors = authors.len() -3
+    }
+    place(top + center, dy: -2.36cm ,
+      rect(
+        fill: HEPLColors.beige-super-pale,
+        width: 140%,
+        height: 6.5cm + number_of_authors * size,
+        )
+    )
+  // Teal top right triangle.
+  place(top + right, dx: 6cm, dy: -5.35cm,
+    rotate(30deg,
+      polygon.regular(
+        fill:HEPLColors.rouge-prv,
+        size: 7.75cm,
+        vertices: 5,
+      )
+    )
+  )
+  // Title and course. + academic year
+  table(
+    columns: (0.75fr,1fr),
+    column-gutter: auto,
+    align: (left, right),
+    stroke: {none},
+    
+    [#image("figures/g2.svg", height: 1.25cm)],
+    [],
+    [#let this_year = date.year()
+                #if date.month() < 9 [Année Académique #{this_year - 1} -- #this_year] else [Année Académique #this_year -- #(this_year+ 1)]
+                \
+                  // Report course
+                  #text(size: 1.4em, fill: HEPLColors.bleu-fonce-hepl, weight: "semibold")[
+                    #course-title :
+                ] \
+                #text(size: 1.8em, fill:  HEPLColors.bleu-clair-darker-hepl, weight: "semibold")[
+                  #title
+                ]],
+    [#grid(
+          ..authors.map(author =>
+              [
+                #author.first-name #smallcaps(author.last-name)  \
+                #author.cursus
+                \
+                \
+              ]
+          )
+        )
+    ],
+  )
 }
 
 
