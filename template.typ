@@ -55,7 +55,6 @@
   authors: (),
   date: datetime.today(),
   paper-size: "a4",
-  twocols: false,  // TODO: implement this.
   bibliography-file: none,
   body,
 ) = {
@@ -70,15 +69,11 @@
 
 
   // Paper and margins
-  let headsize = 0.95em  // TODO: get true head height.
+  let headsize = 0.95em
   set page(
     paper: paper-size,
     margin:
-      if twocols == true {
-        (x: 1.5cm, top: 2cm+headsize, bottom: 1.5cm)
-      } else {
-        (x: 3cm, top: 2cm+headsize, bottom: 2cm)
-      },
+    (x: 3cm, top: 2cm+headsize, bottom: 2cm),
     header-ascent: 35%,
     header: context {
       set text(font: sans-font, size: headsize, fill: Uliege.GrayDark)
@@ -120,7 +115,6 @@
 
   // Font families.
   let font-size = 11pt
-  if twocols == true {font-size = 10pt}
   set text(
     font: main-font,
     size: font-size,
@@ -243,15 +237,6 @@ box(width: 100%,columns(2, gutter: 11pt)[
     )
   }
 
-  // Rest of document in two columns, if desired.
-  show: rest => {
-    if twocols == true {
-      show: columns.with(2, gutter: 2em)
-      rest
-    } else {
-      rest
-    }
-  }
   v(1cm)
   outline(indent: auto,title: "Table des matières",depth: 3)
   pagebreak()
