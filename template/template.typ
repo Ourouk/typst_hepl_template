@@ -51,6 +51,7 @@
 #let project(
   title: "Title of the document",
   course-title: none,
+  fullTitlePage: false,
   abstract: none,
   authors: (),
   date: datetime.today(),
@@ -69,11 +70,11 @@
 
 
   // Paper and margins
-  let headsize = 0.95em
+  let headsize = 0.00em
   set page(
     paper: paper-size,
     margin:
-    (x: 3cm, top: 2cm+headsize, bottom: 2cm),
+    (x: 2.5cm, top: 1.5cm+headsize, bottom: 1.5cm),
     header-ascent: 35%,
     header: context {
       set text(font: sans-font, size: headsize, fill: Uliege.GrayDark)
@@ -153,76 +154,16 @@
       rest
     }
   }
+//Title Page
+if fullTitlePage {
 
-{
-  let size = 2.2em
-  let number_of_authors = 0
-  if authors.len() > 3 {
-    number_of_authors = authors.len() -3
-  }
-  place(top + center, dy: -2.36cm ,
-  rect(
-    fill: HEPLColors.beige-super-pale,
-    width: 140%,
-    height: 6.5cm + number_of_authors * size,
-  )
-)
+} else {
+  include "minimalTitlePage.typ"
 }
 
-// Teal top right triangle.
-place(top + right, dx: 6cm, dy: -5.5cm,
-  rotate(30deg,
-    polygon.regular(
-      fill:HEPLColors.rouge-prv,
-      size: 7.75cm,
-      vertices: 5,
-    )
-  )
-)
-
-// Faculty logo.
-place(top + left, dy: -1cm)[
-    #image("figures/g2.svg", height: 1.25cm)
-  ]
-v(1.25cm)
-// Title and course. + academic year
-box(width: 100%,columns(2, gutter: 11pt)[
-              #align(left)[
-              // Determine the academic year.
-              #v(0.15cm, weak: true)
-              #let this_year = date.year()
-              #if date.month() < 9 [Année Académique #{this_year - 1} -- #this_year] else [Année Académique #this_year -- #(this_year+ 1)]
-              \
-                // Report course
-                #text(size: 1.4em, fill: HEPLColors.bleu-fonce-hepl, weight: "semibold")[
-                  #course-title :
-              ] \
-              #text(size: 1.8em, fill:  HEPLColors.bleu-clair-darker-hepl, weight: "semibold")[
-                #title
-              ]
-        ]
-
-      #colbreak()
-
-      #set par(justify: false)
-      #set par(justify: true, leading: 0.15em)
-      #grid(
-        ..authors.map(author => align(
-            center,
-            [
-              #author.first-name #smallcaps(author.last-name)  \
-              #author.cursus
-              \
-              \
-            ]
-          ),
-        )
-      )
-  ]
-)
 
 
-  // Abstract.
+// Abstract.
   if abstract != none {
     block(
       width: 100%,
