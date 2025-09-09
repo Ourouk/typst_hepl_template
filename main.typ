@@ -3,6 +3,7 @@
 #show: project.with(
   course-title: "Typst",
   title: "Use a Template",
+  fullTitlePage: false,
   authors: (
     (
       first-name: "Andrea",
@@ -10,7 +11,7 @@
       cursus: "M. Ing. Ind. - G. Electrique Informatique",
     ),
   ),
-  bibliography-file: "ref.bib",
+  bibliography-file: "../ref.bib",
 )
 
 = Utiliser dans visual Studio Code

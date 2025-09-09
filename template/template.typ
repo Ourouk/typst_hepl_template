@@ -70,14 +70,13 @@
 
 
   // Paper and margins
-  let headsize = 0.00em
   set page(
     paper: paper-size,
     margin:
-    (x: 2.5cm, top: 1.5cm+headsize, bottom: 1.5cm),
+    (x: 2.5cm, top: 1.5cm, bottom: 1.5cm),
     header-ascent: 35%,
     header: context {
-      set text(font: sans-font, size: headsize, fill: Uliege.GrayDark)
+      set text(font: sans-font, fill: Uliege.GrayDark)
 
       let selector = selector(heading).before(here())
       let level = counter(selector)
@@ -154,9 +153,49 @@
       rest
     }
   }
+// Information Parsing
+  // Année académique parsing
+  let school-year = if date.month() < 9 {
+  [Année académique #(date.year() - 1)–#date.year()]
+  } else {
+    [Année académique #date.year()–#(date.year() + 1)]
+  }
 //Title Page
 if fullTitlePage {
   
+  table(
+    columns: (1fr),
+    column-gutter: auto,
+    align: (center),
+    stroke: {none},
+    
+    [#image("figures/g2.svg", height: 3cm)],
+    [
+      #text(size: 1.5em,fill: HEPLColors.bleu-hepl, weight: "semibold")[
+        #school-year
+      ]
+    ],
+    [
+      \
+        // Report course
+        #text(size: 3.2em, fill: HEPLColors.bleu-fonce-hepl, weight: "semibold")[
+          #course-title :
+    ] \
+    #text(size: 5em, fill:  HEPLColors.bleu-clair-darker-hepl, weight: "semibold")[
+      #title
+    ]],
+    [#grid(
+          ..authors.map(author =>
+              [
+                #author.first-name #smallcaps(author.last-name)  \
+                #author.cursus \\
+              ],
+          )
+        )
+    ],
+  )
+  
+  pagebreak()
 } else {
     let size = 2.2em
     let number_of_authors = 0
