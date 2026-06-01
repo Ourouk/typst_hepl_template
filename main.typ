@@ -1,8 +1,8 @@
 #import  "template/template.typ":  *
 
 #show: project.with(
-  course-title: "Typst",
-  title: "Use a Template",
+  main-title: "Typst",
+  sub-title: "Use a Template",
   fullTitlePage: false,
   authors: (
     (
@@ -19,7 +19,7 @@
 Permet de prévisualiser facilement les fichiers .typ dans Visual Studio Code.
 = Include
 == Image
-#image("figures/g2.svg")
+#image("template/figures/g2.svg")
 == Code block
 ```IOS
   access-list 10 deny 192.168.1.0 0.0.0.255

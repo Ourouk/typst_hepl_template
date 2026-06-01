@@ -1,13 +1,22 @@
-// In file top level sit the global variables that need to be exported
-// (they need to be used outside the template settings),
-// as well as the main template setting function, named `project`.
+#let Theme = (
+  fonts: (
+    main: "STIX Two Text",
+    sans: "Noto Sans",
+    mono: "Fira Code",
+    math: "STIX Two Math",
+  ),
+  colors: (
+    primary: rgb("#00707f"),
+    secondary: rgb("#5fa4b0"),
+    accent: rgb("#CC0033"),
+    warning: rgb("#F6A800"),
+    text-light: rgb("#8c8b82"),
+  ),
+)
 
-// Save font families.
-#let main-font = "STIX Two Text"
-#let sans-font = "Source Sans Pro"
-#let mono-font = "Inconsolata"
+#let code-stroke-color = rgb("#d0d7de")
+#let code-bg-color = rgb("#f6f8fa")
 
-//Based on color scheme of the official https://hepl.be/themes/custom/hepl/css/module.css?s8sgmk
 #let HEPLColors = (
   beige-super-pale:   rgb("#e8e8e3"),
   rouge-prv:          rgb("#CC0033"),
@@ -15,19 +24,16 @@
   jaune-fonce-hepl:   rgb("#be7f00"),
   bleu-hepl:          rgb("#0080a0"),
   bleu-clair-hepl:    rgb("#8abcc8"),
-  bleu-clair-darker-hepl:    rgb("#294e57"),
+  bleu-clair-darker-hepl: rgb("#294e57"),
   bleu-fonce-hepl:    rgb("#002b4f"),
 )
 
-// Uliège colors (from official graphic chart).
 #let Uliege = (
   TealDark:  rgb(000, 112, 127),
   TealLight: rgb(095, 164, 176),
-  // Beige gray scale.
   BeigeLight: rgb(232, 226, 222),
   BeigePale:  rgb(230, 230, 225),
   BeigeDark:  rgb(198, 192, 180),
-  // Faculty colors.
   Yellow:        rgb(255, 208, 000),
   OrangeLight:   rgb(248, 170, 000),
   OrangeDark:    rgb(240, 127, 060),
@@ -46,215 +52,251 @@
   GrayLight:     rgb(181, 180, 169),
 )
 
-// The project function defines how your document looks.
-// It takes your content and some metadata and formats rest.
+#let academic-year(date) = {
+  let y = date.year()
+  if date.month() < 9 {
+    [Année académique #(y - 1) -- #y]
+  } else {
+    [Année académique #y -- #(y + 1)]
+  }
+}
+
+#let heading-level-style(body, level) = {
+  let sizes = (
+    "1": 1.15em,
+    "2": 1.08em,
+    "3": 1.03em,
+  )
+  let weights = (
+    "1": "semibold",
+    "2": "semibold",
+    "3": "regular",
+  )
+  let l = str(level)
+  text(
+    font: Theme.fonts.sans,
+    fill: Uliege.TealDark,
+    weight: weights.at(l, default: "semibold"),
+    size: sizes.at(l, default: 0.95em),
+  )[#body]
+}
+
+#let note(body) = block(
+  fill: Uliege.TealDark.lighten(90%),
+  inset: 1em,
+  radius: 4pt,
+)[
+  *Note:* #body
+]
+
+#let full-title-page(
+  main-title,
+  sub-title,
+  authors,
+  date,
+) = {
+  let authors-content = authors.map(author => [
+    #author.first-name #smallcaps(author.last-name)  \
+    #author.cursus \
+    #if author.at("specialty", default: none) != none [#author.specialty] \
+    \
+  ])
+  page(
+    margin: (x: 2.5cm, top: 2cm, bottom: 2cm),
+    background: [
+      #place(top + left, dx: -1.5cm, dy: -1cm, rotate(15deg, polygon.regular(fill: HEPLColors.bleu-hepl, size: 5cm, vertices: 6)))
+      #place(top + left, dx: 3cm, dy: 25cm, rotate(-10deg, circle(radius: 1.5cm, fill: HEPLColors.rouge-prv)))
+      #place(top + right, dx: -1cm, dy: 0pt, rotate(20deg, polygon.regular(fill: HEPLColors.jaune-prv, size: 3cm, vertices: 5)))
+      #place(bottom + left, dx: 0pt, dy: 1cm, rotate(-15deg, circle(radius: 2cm, fill: HEPLColors.bleu-clair-hepl)))
+      #place(bottom + right, dx: -1.5cm, dy: 1cm, rotate(10deg, polygon.regular(fill: HEPLColors.bleu-fonce-hepl, size: 2.8cm, vertices: 4)))
+      #place(bottom + right, dx: 2.5cm, dy: 0pt, rotate(-5deg, circle(radius: 1.2cm, fill: HEPLColors.rouge-prv.lighten(30%))))
+    ]
+  )[
+    #align(center + top)[
+      #v(1cm)
+      #image("figures/g2.svg", height: 3cm)
+      #v(0.8em)
+      #text(size: 0.9em, fill: HEPLColors.bleu-fonce-hepl)[#academic-year(date)]
+      #v(2cm)
+      #text(size: 2em, fill: HEPLColors.bleu-fonce-hepl, weight: "bold")[#main-title]
+      #v(0.3em)
+      #text(size: 1.5em, fill: HEPLColors.bleu-clair-darker-hepl, weight: "medium")[#sub-title]
+      #v(10cm)
+      #stack(dir: ttb, ..authors-content)
+    ]
+  ]
+  pagebreak()
+}
+
 #let project(
-  title: "Title of the document",
-  course-title: none,
+  main-title: "This is the main title",
+  sub-title: "Sub-Title of the document",
   fullTitlePage: false,
   abstract: none,
   authors: (),
+  thanks: (),
   date: datetime.today(),
   paper-size: "a4",
   bibliography-file: none,
+  annex: none,
+  binding: true,
   body,
 ) = {
-  //Add Suport for beautifull code block
   import "@preview/codly:1.3.0": *
   import "@preview/codly-languages:0.1.1": *
   show: codly-init.with()
-  //Add support for more languages
-  codly(languages: codly-languages)
-  // Document's basic properties.
-  set document(author: authors.map(author => author.first-name + author.last-name), title: title)
+  codly(
+    languages: codly-languages,
+    stroke: 1pt + code-stroke-color,
+    radius: 4pt,
+    fill: code-bg-color,
+    display-icon: false,
+  )
 
+  set document(
+    author: authors.map(a => a.first-name + " " + a.last-name),
+    title: sub-title,
+    keywords: (
+      "HEPL",
+      "Research",
+      "Report",
+    ),
+  )
 
-  // Paper and margins
+  let left-margin = if binding { 3.5cm } else { 2.5cm }
+  let page-header = context {
+    let headings = query(selector(heading).before(here()))
+    if headings.len() == 0 { return none }
+    let levels-shown = (1, 2)
+    let max-level = calc.max(..levels-shown)
+    set text(font: Theme.fonts.sans, fill: Uliege.GrayDark, size: 0.9em)
+    grid(
+      columns: (1fr, auto),
+      column-gutter: 1em,
+      align(left, [
+        #counter(selector(heading).before(here())).display(
+          (..nums) => nums
+            .pos()
+            .slice(0, calc.min(max-level, nums.pos().len()))
+            .map(str)
+            .join(".")
+        )
+        #h(0.25em)
+        #levels-shown.map((i) => {
+          let at-level = headings.filter(h => h.level == i)
+          if at-level.len() == 0 { return none }
+          at-level.last().body
+        })
+        .filter(it => it != none)
+        .join([ --- ])
+      ]),
+      align(right, if page.numbering != none { counter(page).display(page.numbering) }),
+    )
+  }
   set page(
     paper: paper-size,
-    margin:
-    (x: 2.5cm, top: 1.5cm, bottom: 1.5cm),
+    margin: (left: left-margin, right: 2.5cm, top: 1.5cm, bottom: 1.5cm),
     header-ascent: 35%,
-    header: context {
-      set text(font: sans-font, fill: Uliege.GrayDark)
-
-      let selector = selector(heading).before(here())
-      let level = counter(selector)
-      let headings = query(selector)
-
-      if headings.len() == 0 {
-        return
-      }
-
-      let headings_shown = (1, 2)
-      let heading_max_level = calc.max(..headings_shown)
-
-      level.display((..nums) => nums
-        .pos()
-        .slice(0, calc.min(heading_max_level, nums.pos().len()))
-        .map(str)
-        .join("."))
-
-      let heading_text = headings_shown.map((i) => {
-        let headings_at_this_level = headings
-          .filter(h => h.level == i)
-
-        if headings_at_this_level.len() == 0 { return none }
-
-        headings_at_this_level
-          .last()
-          .body
-      })
-      .filter(it => it != none)
-      .join([ --- ])
-
-      h(1em)
-      heading_text
-    }
+    header: page-header,
   )
 
-  // Font families.
   let font-size = 11pt
+  let code-size = 9pt
   set text(
-    font: main-font,
+    font: Theme.fonts.main,
     size: font-size,
-    lang: "en",
-    number-type: "old-style",
-    number-width: "proportional")
-  show raw: set text(font: mono-font, size: font-size)
+    lang: "fr",
+    number-type: "lining",
+    number-width: "tabular",
+  )
+  show raw: set text(font: Theme.fonts.mono, size: code-size)
+  show raw.where(block: true): set text(size: 0.92em)
   set raw(tab-size: 4)
+  set text(hyphenate: true)
 
-  // Math settings.
-  show math.equation: set text(font: "STIX Two Math")
+  show math.equation: set text(font: Theme.fonts.math)
   set math.equation(numbering: "(1.1)")
 
-  // Paragraphs.
   set par(
-    leading: 0.8em,
-    first-line-indent: 1.8em,
+    leading: 0.75em,
+    spacing: 1.2em,
     justify: true,
-    linebreaks: "optimized",
+    justification-limits: (
+      tracking: (min: -0.012em, max: 0.012em),
+      spacing: (min: 75%, max: 120%),
+    ),
   )
 
-  // Headings.
   set heading(numbering: "1.1")
-  show heading: set text(font: sans-font, fill: Uliege.TealDark)
-  show heading: rest => {
-    if rest.level == 1 {
-      text(size:1.10em, weight: "semibold")[#rest]
-    } else if rest.level == 2 {
-      text(size:1.05em, weight: "semibold")[#rest]
-    } else if rest.level == 3 {
-      text(size:1.03em, weight: "regular")[#rest]
-    } else if rest.level > 3 {  // Set run-in subheadings, starting at level 4.
-      parbreak()
-      text(font: sans-font, fill: Uliege.TealDark, weight: "semibold")[#rest.body ---]
-    } else {
-      rest
-    }
+  show heading: it => {
+    heading-level-style(it, it.level)
+    v(0.2em)
   }
-// Information Parsing
-  // Année académique parsing
-  let school-year = if date.month() < 9 {
-  [Année académique #(date.year() - 1)–#date.year()]
+
+  set figure(numbering: "1.1")
+
+  show footnote: set text(size: 0.85em, fill: Uliege.GrayDark)
+
+  show link: it => {
+    set text(fill: Uliege.BlueDark)
+    it
+  }
+
+  show bibliography: set text(0.9em)
+  show bibliography: set par(hanging-indent: 1.5em, spacing: 0.9em)
+
+  if fullTitlePage {
+    full-title-page(main-title, sub-title, authors, date)
   } else {
-    [Année académique #date.year()–#(date.year() + 1)]
-  }
-//Title Page
-if fullTitlePage {
-  
-  table(
-    columns: (1fr),
-    column-gutter: auto,
-    align: (center),
-    stroke: {none},
-    
-    [#image("figures/g2.svg", height: 3cm)],
-    [
-      #text(size: 1.5em,fill: HEPLColors.bleu-hepl, weight: "semibold")[
-        #school-year
-      ]
-    ],
-    [
-      \
-        // Report course
-        #text(size: 3.2em, fill: HEPLColors.bleu-fonce-hepl, weight: "semibold")[
-          #course-title :
-    ] \
-    #text(size: 5em, fill:  HEPLColors.bleu-clair-darker-hepl, weight: "semibold")[
-      #title
-    ]],
-    [#grid(
-          ..authors.map(author =>
-              [
-                #author.first-name #smallcaps(author.last-name)  \
-                #author.cursus \\
-              ],
-          )
-        )
-    ],
-  )
-  
-  pagebreak()
-} else {
     let size = 2.2em
-    let number_of_authors = 0
-    if authors.len() > 3 {
-      number_of_authors = authors.len() -3
-    }
-    place(top + center, dy: -2.36cm ,
-      rect(
-        fill: HEPLColors.beige-super-pale,
-        width: 140%,
-        height: 6.5cm + number_of_authors * size,
-        )
+    let extra-authors = if authors.len() > 3 { authors.len() - 3 } else { 0 }
+    let header-height = 6.5cm + extra-authors * size
+
+    place(top + center, dy: -2.36cm,
+      rect(fill: HEPLColors.beige-super-pale, width: 140%, height: header-height)
     )
-  // Teal top right triangle.
-  place(top + right, dx: 6cm, dy: -5.35cm,
-    rotate(30deg,
-      polygon.regular(
-        fill:HEPLColors.rouge-prv,
-        size: 7.75cm,
-        vertices: 5,
-      )
+    place(top + right, dx: 6cm, dy: -5.35cm,
+      rotate(30deg, polygon.regular(fill: HEPLColors.rouge-prv, size: 7.75cm, vertices: 5))
     )
+    table(
+      columns: (0.75fr, 1fr),
+      column-gutter: auto,
+      align: (left, right),
+      stroke: none,
+      [#image("figures/g2.svg", height: 1.25cm)],
+      [],
+      [
+        #academic-year(date)
+        \
+        #text(size: 1.4em, fill: HEPLColors.bleu-fonce-hepl, weight: "semibold")[#main-title :]
+        \
+        #text(size: 1.8em, fill: HEPLColors.bleu-clair-darker-hepl, weight: "semibold")[#sub-title]
+      ],
+      [
+        #grid(..authors.map(a => [
+          #a.first-name #smallcaps(a.last-name)  \
+          #a.cursus \
+          #if a.at("specialty", default: none) != none [#a.specialty] \
+          \
+        ]))
+      ],
+    )
+  }
+
+  set table(
+    inset: 0.8em,
+    stroke: none,
+    fill: (x, y) =>
+      if y == 0 {
+        Uliege.TealDark.lighten(85%)
+      } else if calc.odd(y) {
+        white
+      } else {
+        luma(248)
+      },
+    align: (x, y) => if x == 0 { horizon + left } else { horizon + center },
   )
-  // Title and course. + academic year
-  table(
-    columns: (0.75fr,1fr),
-    column-gutter: auto,
-    align: (left, right),
-    stroke: {none},
-    
-    [#image("figures/g2.svg", height: 1.25cm)],
-    [],
-    [#let this_year = date.year()
-                #if date.month() < 9 [Année Académique #{this_year - 1} -- #this_year] else [Année Académique #this_year -- #(this_year+ 1)]
-                \
-                  // Report course
-                  #text(size: 1.4em, fill: HEPLColors.bleu-fonce-hepl, weight: "semibold")[
-                    #course-title :
-                ] \
-                #text(size: 1.8em, fill:  HEPLColors.bleu-clair-darker-hepl, weight: "semibold")[
-                  #title
-                ]],
-    [#grid(
-          ..authors.map(author =>
-              [
-                #author.first-name #smallcaps(author.last-name)  \
-                #author.cursus
-                \
-                \
-              ]
-          )
-        )
-    ],
-  )
-}
 
-
-
-// Abstract.
   if abstract != none {
     block(
       width: 100%,
@@ -262,7 +304,7 @@ if fullTitlePage {
       inset: 2em,
       below: 2em,
       par(first-line-indent: 0em)[
-        #text(font: sans-font, fill: Uliege.TealDark, weight: "semibold")[Abstract]
+        #text(font: Theme.fonts.sans, fill: Uliege.TealDark, weight: "semibold")[Abstract]
         #linebreak()
         #abstract
       ]
@@ -270,14 +312,24 @@ if fullTitlePage {
   }
 
   v(1cm)
-  outline(indent: auto,title: "Table des matières",depth: 3)
+  outline(indent: auto, title: "Table des matières", depth: 3)
   pagebreak()
-  // Document main body.
+
+  counter(page).update(1)
+  set page(numbering: "1", footer: none)
+
   body
-  // Print the bibliography.
+
   if bibliography-file != none {
     pagebreak()
     show bibliography: set text(0.9em)
-    bibliography(bibliography-file, full: false, style: "ieee",title: "Bibliographie")
+    bibliography(bibliography-file, full: false, style: "ieee", title: "Bibliographie")
+  }
+
+  if annex != none {
+    pagebreak()
+    counter(heading).update(0)
+    set heading(numbering: "A.1", supplement: [Annexe])
+    annex
   }
 }
